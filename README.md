@@ -17,6 +17,29 @@ Or install it yourself as:
     $ gem install instrumentable
 
 ## Usage
+```ruby
+require "instrumentable"
+
+class WidgetRenderer
+  include Instrumentable
+
+  attr_reader   :id
+  attr_accessor :name
+
+  def render
+    # do crazy render here
+  end 
+
+  instrument_for :render, 'load.widget', :widget_id => :id, :widget_name => :name
+end
+```
+
+## Requirements
+* ActiveSupport
+
+## Running Tests
+
+    ruby -Itest test/instrumentable_test.rb
 
 TODO: Write usage instructions here
 
