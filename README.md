@@ -41,8 +41,6 @@ end
 
     ruby -Itest test/instrumentable_test.rb
 
-TODO: Write usage instructions here
-
 ## Contributing
 
 1. Fork it
