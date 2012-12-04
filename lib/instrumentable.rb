@@ -1,7 +1,7 @@
 require "securerandom"
 require "active_support/concern"
 require "active_support/notifications"
-require_relative "./instrumentable/version"
+require "instrumentable/version"
 
 # Includes +instrument_for+ into the class. The class uses it by adding
 # the instrument_for method to the end of the class specifying
