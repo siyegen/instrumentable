@@ -26,9 +26,13 @@ module Instrumentable
 
       # Redefine method_to_instrument to call inside the Notification
       define_method(method_to_instrument) do |*args, &block|
-        callable_payload = payload.inject({}) do |result, element|
-          value = (__send__(element.last) if respond_to?(element.last)) || element.last
-          result.tap { |r| r[element.first] = value }
+        callable_payload = payload.inject({}) do |result, (payload_key, payload_value)|
+          value = if respond_to?(payload_value)
+                    __send__ payload_value
+                  else
+                    payload_value
+                  end
+          result.tap { |r| r[payload_key] = value }
         end
         ActiveSupport::Notifications.instrument event_name, callable_payload do
           __send__(instrument_method, *args, &block)
