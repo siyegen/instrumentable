@@ -35,5 +35,26 @@ module Instrumentable
         end
       end
     end
+
+
+    def class_instrument_for(klass, method_to_instrument, event_name, payload={})
+      class << klass; self; end.class_eval do
+        instrument_method = :"instrument_for_#{method_to_instrument}"
+
+        # Hide original method under new method
+        alias_method instrument_method, method_to_instrument
+
+        # Redefine method_to_instrument to call inside the Notification
+        define_method(method_to_instrument) do |*args, &block|
+          callable_payload = payload.inject({}) do |result, element|
+            value = (__send__(element.last) if respond_to?(element.last)) || element.last
+            result.tap { |r| r[element.first] = value }
+          end
+          ActiveSupport::Notifications.instrument event_name, callable_payload do
+            __send__(instrument_method, *args, &block)
+          end
+        end
+      end
+    end
   end
 end

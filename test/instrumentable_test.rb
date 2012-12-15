@@ -5,8 +5,11 @@ class FakeModel
   include Instrumentable
   def simple_event; end
   def payload_event; end
+  def self.event; end
   instrument_for :simple_event,   'event.name',   :my_payload => :id
   instrument_for :payload_event,  'payload.name', :my_payload => 'megaman'
+
+  class_instrument_for FakeModel, :event, 'payload.name', :my_payload => 'mocat'
 end
 
 describe Instrumentable do
@@ -33,6 +36,18 @@ describe Instrumentable do
     callback = lambda { |*_| events << "#{_.first}-#{_.last[:my_payload]}" }
     ActiveSupport::Notifications.subscribed(callback, 'payload.name') do
       fm.payload_event
+      ActiveSupport::Notifications.instrument('other.event')
+    end
+    events.must_equal expected
+  end
+
+  it "must handle class methods" do
+    expected = ['payload.name-whatever']
+    events = []
+
+    callback = lambda { |*_| events << "#{_.first}-#{_.last[:my_payload]}" }
+    ActiveSupport::Notifications.subscribed(callback, 'payload.name') do
+      FakeModel.event
       ActiveSupport::Notifications.instrument('other.event')
     end
     events.must_equal expected
