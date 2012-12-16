@@ -3,10 +3,11 @@ require_relative "../lib/instrumentable"
 
 class FakeModel
   include Instrumentable
-  def simple_event; end
-  def false_event; end
-  def payload_event; end
-  def self.event; end
+  def simple_event;end
+  def false_event;end
+  def payload_event;end
+  def self.event;end
+
   instrument_for :simple_event,   'event.name',   :my_payload => :id
   instrument_for :false_event,    'event.name',   :my_payload => :valid
   instrument_for :payload_event,  'payload.name', :my_payload => 'megaman'
@@ -58,7 +59,7 @@ describe Instrumentable do
   end
 
   it "must handle class methods" do
-    expected = ['payload.name-whatever']
+    expected = ['payload.name-mocat']
     events = []
 
     callback = lambda { |*_| events << "#{_.first}-#{_.last[:my_payload]}" }
