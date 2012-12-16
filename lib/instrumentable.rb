@@ -3,21 +3,10 @@ require "active_support/concern"
 require "active_support/notifications"
 require "instrumentable/version"
 
-# Includes +instrument_for+ into the class. The class uses it by adding
-# the instrument_for method to the end of the class specifying
-# what method to apply it to.
 module Instrumentable
   extend ActiveSupport::Concern
 
   module ClassMethods
-    # Internal: Decorates :method_to_instrument with  AS::N.instrument
-    # firing with :event_name to the matching AS::N.subscribe
-    #
-    # Example:
-    #
-    #   # Decorates render method with AS:N:instrument 'model.render' and passes
-    #   # a payload of :model_name and :id to the subscribe method
-    #   instrument_for :render, 'model.render', {:model_name => :model_name, :id => :id
     def instrument_method(method_to_instrument, event_name, payload={})
       Instrumentality.begin(self, method_to_instrument, event_name, payload)
     end
