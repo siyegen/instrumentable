@@ -22,7 +22,6 @@ module Instrumentable
       Instrumentality.begin(self, method_to_instrument, event_name, payload)
     end
 
-
     def class_instrument_method(klass, method_to_instrument, event_name, payload={})
       class << klass; self; end.class_eval do
         Instrumentality.begin(self, method_to_instrument, event_name, payload)
@@ -33,40 +32,24 @@ module Instrumentable
   private
   class Instrumentality
 
-    def self.begin(*args)
-      alias_define(args) do |ensemble|
-        define(ensemble)
-      end
-    end
+    def self.begin(klass, method, event, payload)
+      instrumentality = self
+      instrumented_method = :"instrument_for#{method}"
+      klass.send :alias_method, instrumented_method, method
 
-    def self.define(ensemble)
-      ensemble.klass.send(:define_method, ensemble.original_method) do |*args, &block|
-        event_payload = ensemble.payload.inject({}) do |result, (payload_key, payload_value)|
-          value = ensemble.invoke_value(self, payload_value)
+      klass.send(:define_method, method) do |*args, &block|
+        event_payload = payload.inject({}) do |result, (payload_key, payload_value)|
+          value = instrumentality.invoke_value(self, payload_value)
           result.tap { |r| r[payload_key] = value }
         end
-        ActiveSupport::Notifications.instrument ensemble.event, event_payload do
-          __send__(ensemble.instrumented_method, *args, &block)
+
+        ActiveSupport::Notifications.instrument event, event_payload do
+          __send__(instrumented_method, *args, &block)
         end
       end
     end
 
-    def self.alias_define(args)
-      ensemble = Ensemble.new(*args)
-      ensemble.klass.send :alias_method, ensemble.instrumented_method, ensemble.original_method
-      yield ensemble
-    end
-  end
-
-  class Ensemble
-    attr_reader :klass, :original_method, :event, :payload, :instrumented_method
-
-    def initialize(klass, method, event, payload)
-      @klass, @original_method, @event, @payload = klass, method, event, payload
-      @instrumented_method = :"instrument_for#{@original_method}"
-    end
-
-    def invoke_value(klass, obj)
+    def self.invoke_value(klass, obj)
       case obj
       when Symbol
         klass.__send__ obj
