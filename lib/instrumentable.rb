@@ -42,7 +42,7 @@ module Instrumentable
           value = instrumentality.invoke_value(self, payload_value)
           result.tap { |r| r[payload_key] = value }
         end
-
+        event_payload.merge!({:_method_args => args})
         ActiveSupport::Notifications.instrument event, event_payload do
           __send__(instrumented_method, *args, &block)
         end
