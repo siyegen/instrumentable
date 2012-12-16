@@ -11,7 +11,6 @@ class FatherCat
   def self.sorry; "I'mma so sorry"; end
   def self.who?(person); end
 
-  #   instrument_for :render, 'model.render', {:model_name => :model_name, :id => :id
   # String
   instrument_method :hello_everynyan, 'fathercat.greet', :payload => 'FatherCat'
   # Symbol Mori
