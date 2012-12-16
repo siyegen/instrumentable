@@ -59,7 +59,7 @@ module Instrumentable
       Instrumentality.begin(self, method_to_instrument, event_name, payload)
     end
 
-    # Class implementation for +instrument_method+
+    # Class implementation of +instrument_method+
     def class_instrument_method(klass, method_to_instrument, event_name, payload={})
       class << klass; self; end.class_eval do
         Instrumentality.begin(self, method_to_instrument, event_name, payload)
