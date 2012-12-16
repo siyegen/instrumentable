@@ -18,35 +18,62 @@ module Instrumentable
     #   # Decorates render method with AS:N:instrument 'model.render' and passes
     #   # a payload of :model_name and :id to the subscribe method
     #   instrument_for :render, 'model.render', {:model_name => :model_name, :id => :id
-    def instrument_for(method_to_instrument, event_name, payload={})
-      @@__instrumentation.(self, method_to_instrument, event_name, payload)
+    def instrument_method(method_to_instrument, event_name, payload={})
+      Instrumentality.begin(self, method_to_instrument, event_name, payload)
     end
 
 
-    def class_instrument_for(klass, method_to_instrument, event_name, payload={})
+    def class_instrument_method(klass, method_to_instrument, event_name, payload={})
       class << klass; self; end.class_eval do
-        @@__instrumentation.(self, method_to_instrument, event_name, payload)
+        Instrumentality.begin(self, method_to_instrument, event_name, payload)
+      end
+    end
+  end
+
+  private
+  class Instrumentality
+
+    def self.begin(*args)
+      alias_define(args) do |ensemble|
+        define(ensemble)
       end
     end
 
-    private
-    @@__instrumentation = Proc.new do |klass, method_to_instrument, event_name, payload|
-      instrument_method = :"instrument_for_#{method_to_instrument}"
-
-      klass.send :alias_method, instrument_method, method_to_instrument
-
-      klass.send(:define_method, method_to_instrument) do |*args, &block|
-        callable_payload = payload.inject({}) do |result, (payload_key, payload_value)|
-          value = if respond_to?(payload_value)
-                    __send__ payload_value
-                  else
-                    payload_value
-                  end
+    def self.define(ensemble)
+      ensemble.klass.send(:define_method, ensemble.original_method) do |*args, &block|
+        event_payload = ensemble.payload.inject({}) do |result, (payload_key, payload_value)|
+          value = ensemble.invoke_value(self, payload_value)
           result.tap { |r| r[payload_key] = value }
         end
-        ActiveSupport::Notifications.instrument event_name, callable_payload do
-          __send__(instrument_method, *args, &block)
+        ActiveSupport::Notifications.instrument ensemble.event, event_payload do
+          __send__(ensemble.instrumented_method, *args, &block)
         end
+      end
+    end
+
+    def self.alias_define(args)
+      ensemble = Ensemble.new(*args)
+      ensemble.klass.send :alias_method, ensemble.instrumented_method, ensemble.original_method
+      yield ensemble
+    end
+  end
+
+  class Ensemble
+    attr_reader :klass, :original_method, :event, :payload, :instrumented_method
+
+    def initialize(klass, method, event, payload)
+      @klass, @original_method, @event, @payload = klass, method, event, payload
+      @instrumented_method = :"instrument_for#{@original_method}"
+    end
+
+    def invoke_value(klass, obj)
+      case obj
+      when Symbol
+        klass.__send__ obj
+      when Proc
+        obj.call
+      when String
+        obj
       end
     end
   end

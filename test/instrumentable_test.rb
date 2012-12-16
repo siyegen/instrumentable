@@ -8,11 +8,11 @@ class FakeModel
   def payload_event;end
   def self.event;end
 
-  instrument_for :simple_event,   'event.name',   :my_payload => :id
-  instrument_for :false_event,    'event.name',   :my_payload => :valid
-  instrument_for :payload_event,  'payload.name', :my_payload => 'megaman'
+  instrument_method :simple_event,   'event.name',   :my_payload => :id
+  instrument_method :false_event,    'event.name',   :my_payload => :valid
+  instrument_method :payload_event,  'payload.name', :my_payload => 'megaman'
 
-  class_instrument_for FakeModel, :event, 'payload.name', :my_payload => 'mocat'
+  class_instrument_method FakeModel, :event, 'payload.name', :my_payload => :object_id
 end
 
 describe Instrumentable do
@@ -59,7 +59,8 @@ describe Instrumentable do
   end
 
   it "must handle class methods" do
-    expected = ['payload.name-mocat']
+    object_id = FakeModel.object_id
+    expected = ["payload.name-#{object_id}"]
     events = []
 
     callback = lambda { |*_| events << "#{_.first}-#{_.last[:my_payload]}" }
