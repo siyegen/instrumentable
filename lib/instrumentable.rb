@@ -72,7 +72,7 @@ module Instrumentable
 
     def self.begin(klass, method, event, payload)
       instrumentality = self
-      instrumented_method = :"instrument_for#{method}"
+      instrumented_method = :"_instrument_for_#{method}"
       klass.send :alias_method, instrumented_method, method
 
       klass.send(:define_method, method) do |*args, &block|
