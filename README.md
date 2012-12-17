@@ -55,7 +55,7 @@ What is sent to the subscriber depends on what is passed in as the value
   + ex: ```Proc.new { Time.now }```
   + calls the proc, returning the value
 
-All payloads will recieve a list of the arugments called with the method under
+All payloads will recieve a list of the arguments called with the method under
 ```:_method_args```, this will be an empty array if the method was called with no args
 
 If you want to instrument a class method, you must use a separate method
