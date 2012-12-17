@@ -13,10 +13,10 @@ class FatherCat
 
   # String
   instrument_method :hello_everynyan, 'fathercat.greet', :payload => 'FatherCat'
-  # Symbol Mori
+  # Symbol
   instrument_method :fake_cat, 'fathercat.rant', :payload => :look_alike
   # Proc
-  instrument_method :osaka, 'fathercat.ask', :payload => Proc.new { 'also cat tounged' }
+  instrument_method :osaka, 'fathercat.ask', :payload => Proc.new { Time.now }
   # Args
   instrument_method :teachers, 'fathercat.teachers', :payload => 'teachers'
 
