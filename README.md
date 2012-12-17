@@ -31,14 +31,17 @@ to instrument an instance method
 instrument_method :method_name, 'event.to.fire', :payload_key => :payload_value
 ```
 
-```:method_name```
+``` :method_name ```
+
 Is the name of the method you want to instrument
 
-```'event.to.fire'```
+``` 'event.to.fire' ```
+
 Is the name of the event you'll setup your subscriber for
 This can be any string
 
-```:payload_key => :payload_value```
+``` :payload_key => :payload_value ```
+
 The last part is the payload, which consists of a key and a value.
 What is sent to the subscriber depends on what is passed in as the value
 + String
