@@ -16,7 +16,7 @@ class FatherCat
   # Symbol
   instrument_method :fake_cat, 'fathercat.rant', :payload => :look_alike
   # Proc
-  instrument_method :osaka, 'fathercat.ask', :payload => Proc.new { Time.now }
+  instrument_method :osaka, 'fathercat.ask', :payload => Proc.new { 'also cat tounged' }
   # Args
   instrument_method :teachers, 'fathercat.teachers', :payload => 'teachers'
 
