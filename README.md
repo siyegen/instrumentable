@@ -12,7 +12,7 @@ as well
 
 Add this line to your application's Gemfile:
 
-    gem 'instrumentable'
+    gem "instrumentable", "~> 1.0.0"
 
 And then execute:
 
