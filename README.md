@@ -1,4 +1,5 @@
-# Instrumentable
+# Instrumentable (1.0.0)
+-note, this version is not backwards compatiable
 
 Decorate all your favorite methods with ActiveSupport::Notifications.instrument
 
