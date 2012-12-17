@@ -30,8 +30,12 @@ to instrument an instance method
 ```ruby
 instrument_method :method_name, 'event.to.fire', :payload_key => :payload_value
 ```
-```:method_name``` is simple the name of the method you want to instrument
-```'event.to.fire'``` is the name of the event you'll setup your subscriber for
+
+```:method_name```
+Is the name of the method you want to instrument
+
+```'event.to.fire'```
+Is the name of the event you'll setup your subscriber for
 This can be any string
 
 ```:payload_key => :payload_value```
@@ -47,12 +51,14 @@ What is sent to the subscriber depends on what is passed in as the value
   + ex: ```Proc.new { Time.now }```
   + calls the proc, returning the value
 
+All payloads will recieve a list of the arugments called with the method under
+```:_method_args```, this will be an empty array if the method was called with no args
+
 If you want to instrument a class method, you must use a separate method
 ```ruby
 class_instrument_method  self, :method_name, 'event.to.fire', :payload_key => :payload_value
 ```
-The only difference here is ```class_instrument_method``` instead and the first
-argument as to be ```self```
+You must use ```class_instrument_method``` instead and pass the first argument in as ```self```
 
 ## Examples
 ```ruby
@@ -81,7 +87,7 @@ class WidgetRenderer
   end
   instrument_method :render, 'render.widget', :widget_id => :id, :widget_name => :name
   instrument_method :load, 'load.widget', :status => 'loading', :valid => :valid?
-  class_instrument_method :load, 'add.widget'
+  class_instrument_method :add, 'add.widget'
 end
 ```
 
