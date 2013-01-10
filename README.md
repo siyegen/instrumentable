@@ -1,4 +1,4 @@
-# Instrumentable (1.0.0)
+# Instrumentable [![Gem Version](https://badge.fury.io/rb/instrumentable.png)](http://badge.fury.io/rb/instrumentable)
 -note, this version is not backwards compatiable
 
 Decorate all your favorite methods with ActiveSupport::Notifications.instrument
