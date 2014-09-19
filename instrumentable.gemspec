@@ -10,7 +10,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["siyegen@gmail.com"]
   gem.description   = %q{Gem for decorating methods to use with ActiveSupport::Notifications}
   gem.summary       = %q{Gem for decorating methods to use with ActiveSupport::Notifications}
-  gem.homepage      = ""
+  gem.homepage      = "https://github.com/siyegen/instrumentable"
 
   gem.add_dependency 'activesupport', ">= 3.2"
   gem.add_development_dependency 'minitest'
