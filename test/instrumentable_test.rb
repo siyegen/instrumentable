@@ -3,10 +3,13 @@ require_relative "../lib/instrumentable"
 
 class FatherCat
   include Instrumentable
+  attr_reader :cat_name
+  def initialize; @cat_name="phill"; end
   def hello_everynyan; end
-  def fake_cat; end
+  def fake_cat; @cat_name = "mori";end
   def osaka; end
   def teachers(home, pe, geo); end
+  def look_alike; return @cat_name; end
   def self.omg; end
   def self.sorry; "I'mma so sorry"; end
   def self.who?(person); end
@@ -44,11 +47,10 @@ describe Instrumentable do
 
     it "must instrument fathercat.rant" do
       cat = FatherCat.new
-      def cat.look_alike; 'Mori'; end
-      expected = ["fathercat.rant-#{cat.look_alike}"]
+      expected = ["fathercat.rant-mori"]
       events = []
 
-      callback = lambda { |*_| events << "#{_.first}-#{_.last[:payload]}" }
+      callback = lambda { |*_| events << "#{_.first}-#{_.last[:payload]}"; }
       ActiveSupport::Notifications.subscribed(callback, 'fathercat.rant') do
         cat.fake_cat
         ActiveSupport::Notifications.instrument('some.other.event')
@@ -86,11 +88,11 @@ describe Instrumentable do
       end
       events.must_equal expected
     end
-  end
+   end
 
   describe ".class_instrument_method" do
     it "must instrument fathercat.anger" do
-      expected = ["fathercat.anger-#{FatherCat.sorry}"]
+      expected = ["fathercat.anger-I'mma so sorry"]
       events = []
 
       callback = lambda { |*_| events << "#{_.first}-#{_.last[:payload]}" }

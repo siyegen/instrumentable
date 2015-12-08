@@ -71,18 +71,26 @@ module Instrumentable
   class Instrumentality
 
     def self.begin(klass, method, event, payload)
-      instrumentality = self
-      instrumented_method = :"_instrument_for_#{method}"
-      klass.send :alias_method, instrumented_method, method
+      instrumentality = self # needed to call in send block, where scope has changed self
+      instrumented_method = :"_instrument_for_#{method}" # create alt method name
+      klass.send :alias_method, instrumented_method, method # alias altmethod to original one
 
-      klass.send(:define_method, method) do |*args, &block|
-        event_payload = payload.inject({}) do |result, (payload_key, payload_value)|
-          value = instrumentality.invoke_value(self, payload_value)
-          result.tap { |r| r[payload_key] = value }
+      symbols = {}
+      klass.send(:define_method, method) do |*args, &block| # define new method with same name
+        event_payload = {}
+        payload.each do |payload_key, payload_value|
+          if payload_value.is_a? Symbol # Defer symbols till after method is called
+            symbols[payload_key] = payload_value
+          else
+            event_payload[payload_key] = instrumentality.invoke_value(self, payload_value)
+          end
         end
         event_payload.merge!({:_method_args => args})
         ActiveSupport::Notifications.instrument event, event_payload do
           __send__(instrumented_method, *args, &block)
+          symbols.each do |key, sym|
+            event_payload[key] = instrumentality.invoke_value(self, sym)
+          end
         end
       end
     end
