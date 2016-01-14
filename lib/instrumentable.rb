@@ -87,9 +87,15 @@ module Instrumentable
         end
         event_payload.merge!({:_method_args => args})
         ActiveSupport::Notifications.instrument event, event_payload do
-          __send__(instrumented_method, *args, &block)
-          symbols.each do |key, sym|
-            event_payload[key] = instrumentality.invoke_value(self, sym)
+          begin
+            __send__(instrumented_method, *args, &block)
+          rescue StandardError => e
+
+          ensure
+            symbols.each do |key, sym|
+              event_payload[key] = instrumentality.invoke_value(self, sym)
+            end
+            raise e unless e.nil?
           end
         end
       end
